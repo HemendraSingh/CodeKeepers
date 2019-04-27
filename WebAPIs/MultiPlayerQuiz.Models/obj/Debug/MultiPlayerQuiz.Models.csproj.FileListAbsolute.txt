@@ -1,0 +1,6 @@
+F:\Self-Learning\CodingPractise\MultiPlayerQuiz.Api\MultiPlayerQuiz.Models\bin\Debug\MultiPlayerQuiz.Models.dll
+F:\Self-Learning\CodingPractise\MultiPlayerQuiz.Api\MultiPlayerQuiz.Models\bin\Debug\MultiPlayerQuiz.Models.pdb
+F:\Self-Learning\CodingPractise\MultiPlayerQuiz.Api\MultiPlayerQuiz.Models\obj\Debug\MultiPlayerQuiz.Models.csprojAssemblyReference.cache
+F:\Self-Learning\CodingPractise\MultiPlayerQuiz.Api\MultiPlayerQuiz.Models\obj\Debug\MultiPlayerQuiz.Models.csproj.CoreCompileInputs.cache
+F:\Self-Learning\CodingPractise\MultiPlayerQuiz.Api\MultiPlayerQuiz.Models\obj\Debug\MultiPlayerQuiz.Models.dll
+F:\Self-Learning\CodingPractise\MultiPlayerQuiz.Api\MultiPlayerQuiz.Models\obj\Debug\MultiPlayerQuiz.Models.pdb
