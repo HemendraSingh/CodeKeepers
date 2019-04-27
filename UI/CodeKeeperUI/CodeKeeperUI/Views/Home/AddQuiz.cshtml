@@ -1,0 +1,153 @@
+﻿
+@{
+    ViewBag.Title = "AddQuiz";
+}
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+
+<div class="row">
+    <div class="col-lg-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">Panel Heading</div>
+            <div class="panel-body">Panel Content</div>
+        </div>
+    </div>    
+</div>
+
+@*<table cellpadding="0" cellspacing="0" id="tbl">
+    <tr>
+        <th colspan="2" align="center">Create Quiz</th>
+    </tr>
+    <tr>
+        <td>Title: </td>
+        <td>
+            @Html.EditorFor(a => a.Title);
+        </td>
+    </tr>
+    <tr>
+        <td>Quiz Description: </td>
+        <td>
+            @Html.EditorFor(a => a.Quiz_Description);
+        </td>
+    </tr>
+    <tr>
+        <td>Start Date: </td>
+        <td>
+            @Html.EditorFor(a => a.StartDate);
+        </td>
+    </tr>
+    <tr>
+        <td>End Date: </td>
+        <td>
+            @Html.EditorFor(a => a.EndDate);
+        </td>
+    </tr>
+    <tr>
+        <td>QuizType: </td>
+        <td>
+            @Html.EditorFor(a => a.QuizType);
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="submit" onclick="onSubmit()" value="Submit" /></td>
+    </tr>
+</table>*@
+<table id="example" class="display" width="100%"></table>
+<button onclick="AddQues()">Add Quest</button>
+<script>
+    var dataSet = [];
+    function showTable() {
+        dataSet = [{
+            label: "Active:",
+            name: "active",
+            type: "checkbox",
+            separator: "|",
+            options: [
+                { label: '', value: 1 }
+            ]
+        }, {
+            label: "First name:",
+            name: "first_name"
+        }, {
+            label: "Last name:",
+            name: "last_name"
+        }, {
+            label: "Phone:",
+            name: "phone"
+        }, {
+            label: "City:",
+            name: "city"
+        }, {
+            label: "Zip:",
+            name: "zip"
+        }
+        ];
+        $('#example').DataTable({
+            data: dataSet,
+            lengthMenu:[[1,2],[1,2]],
+            columns: [
+                {
+                    data: "label",title:"label",
+                    render: function (data, type, row,setting) {
+                        if (type === 'display') {
+                            console.log(setting.row);
+                            if (row.isActive) {
+                                return '<input type="checkbox" checked="checked" onclick=AddQues("' + setting.row + '",this) class="editor-active">';
+                            }
+                            return '<input type="checkbox" onclick=AddQues("' + setting.row + '",this) class="editor-active">';
+                        }
+                        return data;
+                    },
+                    className: "dt-body-center"
+                },
+                { data: "name", title: "label"}
+            ]
+        });
+
+    }
+    showTable();
+
+
+    function onSubmit(){
+        var data = {
+            "Title": $("[name='Title']").val(),
+            Quiz_Description: $("[name='Quiz_Description']").val(),
+            StartDate: $("[name='StartDate']").val(),
+            EndDate: $("[name='EndDate']").val(),
+            QuizType: $("[name='QuizType']").val()
+        };
+        console.log(data);
+        $.ajax({
+            type: "POST",
+            url: "ddd",
+            data: data,
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                if (onSucccess === null || onSucccess === undefined) {
+
+                } else {
+                    onSucccess(result);
+                }
+            },
+            error: function (jqXHR, status, error) {
+            },
+            complete: function () {
+            }
+        });
+    }
+    function AddQues(indx,ths) {
+        console.log(indx)
+        console.log(dataSet)
+        console.log(ths);
+        dataSet[indx].isActive = ths.checked;
+        //$(".editor-active")[0].checked = false
+    }
+    function loadQuiz() {
+
+    }
+</script>

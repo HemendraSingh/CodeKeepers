@@ -1,0 +1,235 @@
+﻿
+@{
+    ViewBag.Title = "Administrator";
+}
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+
+<button type="button" class="btn btn-primary" onclick="addQuest_1()">Add Question</button>
+
+@*<table cellpadding="0" cellspacing="0" id="tbl">
+        <tr>
+            <th colspan="2" align="center">Create Question</th>
+        </tr>
+        <tr>
+            <td>Question: </td>
+            <td>
+                <textarea cols="20" id="Question" name="Question" rows="2"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>Score: </td>
+            <td>
+                <input data-val="true" data-val-number="The field Mark must be a number." data-val-required="The Mark field is required." id="Mark" name="Mark" type="number" value="">
+            </td>
+        </tr>
+        <tr>
+            <td>Negative Score: </td>
+            <td>
+                <input data-val="true" data-val-number="The field NegativeMark must be a number." data-val-required="The NegativeMark field is required." id="NegativeMark" name="NegativeMark" type="number" value="">
+            </td>
+        </tr>
+        <tr>
+            <td>Question Type: </td>
+            <td>
+                <select name="QuestionType" id="QuestionType">
+                    <option>Please Select</option>
+                    <option value="Single">Single</option>
+                    <option  value="Single">Multi</option>
+                    <option  value="Single">Text</option>
+                </select>
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" onclick="addOption()">Add Option: </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td><input type="submit" onclick="onSubmit()" value="Submit" /></td>
+        </tr>
+    </table>*@
+<table id="example" class="display" width="100%"></table>
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Create/Update Question</h4>
+            </div>
+            <div class="modal-body" id="mdl">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Question</label>
+                    <textarea cols="20" class="form-control" id="Question" name="Question" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Score</label>
+                    <input data-val="true" class="form-control" data-val-number="The field Mark must be a number." data-val-required="The Mark field is required." id="Score" name="Score" type="number" value="">
+                </div>
+                <div class="form-check">
+                    <a colspan="2" onclick="addOption()">Add Option: </a>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="onSubmit()">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    var baseurl = $("#baseurl").val();
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+    function addOption() {
+        var tbl = document.getElementById("mdl");
+        $(tbl).append('<div class="form-check">'+
+                    '<textarea cols="20" class="form-control opt" id="Question" name="Question" rows="2"></textarea>' +
+                '</div>');
+        //var a = $(tbl)[0].querySelectorAll("tr")
+        //$(a[a.length - 2]).next().append("<tr><td></td><td><textArea class='opt'></textArea></td></tr>")
+        //$(tbl).append("<tr><td></td><td><textArea class='opt'></textArea></td></tr>");
+    }
+    function onSubmit() {
+        var lst = $(".opt");
+        var list = [];
+        for (var i = 0; i < lst.length; i++) {
+            list.push(lst[i].value);
+        }
+        var data = {
+            "Question": $("[name='Question']").val(),
+            Score: $("[name='Score']").val(),
+            Question_Option: list
+        };
+        var endurl = "add";
+        var typ = "POST";
+        if (rowid != -1) {
+            data.Id = rowid;
+            endurl = "update";
+            typ = "PUT";
+        }
+        console.log(data);
+        $.ajax({
+            type: typ,
+            url: baseurl + "api/Questions/" + endurl,
+            data: data,
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                alert("Added Successfully");
+                $('#myModal').modal('show');
+            },
+            error: function (jqXHR, status, error) {
+                //if (onError !== null && onError !== undefined) {
+                //    onError(jqXHR, status, error);
+                //    $("#" + settings.updateTargetId).html(error);
+                //}
+            },
+            complete: function () {
+            }
+        });
+    }
+
+    function showTable() {
+        
+        $.ajax({
+            type: "GET",
+            url: baseurl + "api/Questions/get",
+            data: {},
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                console.log(result);
+                $('#example').DataTable({
+                    data: result,
+
+                    columns: [
+                        //{
+                        //    data: "Id", title: "Check",
+                        //    render: function (data, type, row, setting) {
+                        //        if (type === 'display') {
+                        //            console.log(setting.row);
+                        //            if (row.isActive) {
+                        //                return '<input type="checkbox" checked="checked" onclick="AddQues(\"' + setting.row + '\",this)" class="editor-active">';
+                        //            }
+                        //            return '<input type="checkbox" onclick="AddQues(\"' + setting.row + '\",this)" class="editor-active">';
+                        //        }
+                        //        return data;
+                        //    },
+                        //    className: "dt-body-center"
+                        //},
+                        { data: "Id", title: "Id", "visible": false },
+                        { data: "Description", title: "Question" },
+                        { data: "Duration", title: "Duration" },
+                        {
+                            title: "Action",
+                            render: function (data, type, row, setting) {
+                                return '<a onclick="questEdit(\'' + row.Id + '\',\'' + row.Description + '\',\'' + row.Score + '\')">Update</a><a onclick="(\'' + row.Id + '\',\'' + row.Description + '\',\'' + row.Score + '\')">Delete</a>';
+                            },
+                        },
+
+                    ]
+                });
+
+            },
+            error: function (jqXHR, status, error) {
+
+            },
+            complete: function () {
+            }
+        });
+
+
+    }
+
+    showTable();
+    var rowid = -1;
+    function questEdit(rowid,ques,score) {
+        console.log(rowid);
+        rowid = rowid;
+        $("#Question").val(ques);
+        $("#Score").val(score);
+        $('#myModal').modal('show');
+    }
+    function questDelete(rowid, ques, score) {
+        console.log(rowid);
+        $.ajax({
+            type: "DELETE",
+            url: baseurl + "api/Questions/" + endurl,
+            data: { id: rowid },
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                alert("Added Successfully");
+                $('#myModal').modal('show');
+            },
+            error: function (jqXHR, status, error) {
+                //if (onError !== null && onError !== undefined) {
+                //    onError(jqXHR, status, error);
+                //    $("#" + settings.updateTargetId).html(error);
+                //}
+            },
+            complete: function () {
+            }
+        });
+    }
+    function addQuest_1(){
+        rowid = -1;
+        $('#myModal').modal('show');
+    }
+    function addQuest() {
+        $('#myModal').modal('show');
+    }
+</script>
+
+
