@@ -9,8 +9,8 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
 
 <div class="row " style="margin-top:25px;position:relative">
-    <button type="button" class="btn btn-primary" onclick="AddQues()">Add Question</button>
-    <button type="button" class="btn btn-primary" onclick="AddQues()">Add Quiz</button>
+    @*<button type="button" class="btn btn-primary" onclick="AddQues()">Add Question</button>*@
+    <button type="button" class="btn btn-primary" onclick="OpenQuiz()">Add Quiz</button>
     <table id="example" class="display" width="100%"></table>
     <div id="quizModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -19,28 +19,53 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Create/Update Question</h4>
+                    <h4 class="modal-title">Create/Update Quiz</h4>
                 </div>
                 <div class="modal-body" id="mdl">
                     <div class="form-group">
-                        <label for="exampleInputEmail1">Question</label>
-                        <textarea cols="20" class="form-control" id="Question" name="Question" rows="2"></textarea>
+                        <label for="exampleInputEmail1">Title</label>
+                        <textarea cols="20" class="form-control" id="Title" name="Title" rows="2"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="exampleInputPassword1">Score</label>
-                        <input data-val="true" class="form-control" data-val-number="The field Mark must be a number." data-val-required="The Mark field is required." id="Score" name="Score" type="number" value="">
+                        <label for="exampleInputPassword1">Quiz_Description</label>
+                        <input data-val="true" class="form-control" data-val-number="The field Mark must be a number." data-val-required="The Mark field is required." id="Quiz_Description" name="Quiz_Description" type="text" value="">
                     </div>
                     <div class="form-group">
-                        <label for="exampleInputPassword1">Duration</label>
-                        <input data-val="true" class="form-control" data-val-number="The field Mark must be a number." data-val-required="The Mark field is required." id="Duration" name="Duration" type="number" value="">
+                        <label for="exampleInputPassword1">StartDate</label>
+                        <input data-val="true" class="form-control"data-val-required="The Mark field is required." id="StartDate" name="StartDate" type="date" value="">
                     </div>
-                    <div class="form-check">
-                        <a colspan="2" onclick="addOption()">Add Option: </a>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">EndDate</label>
+                        <input data-val="true" class="form-control" data-val-required="The Mark field is required." id="EndDate" name="EndDate" type="date" value="">
                     </div>
-
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">QuizType</label>
+                        <input data-val="true" class="form-control"  data-val-required="The Mark field is required." id="QuizType" name="QuizType" type="text" value="">
+                    </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" onclick="onSubmit()">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="quesModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Select Question</h4>
+                </div>
+                <div class="modal-body" id="mdl">
+                    <table id="examplequs" class="display" width="100%"></table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="onSubmitQuest()">Submit</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -86,7 +111,9 @@
                             title: "Action",
                             render: function (data, type, row, setting) {
                                 var jsn = escape(JSON.stringify(row));
-                                return '<a onclick="quiztEdit(\'' + jsn + '\')">Update</a><a style="padding-left:20px;position:releative" onclick="quizDelete(\'' + jsn + '\')">Delete</a>';
+                                return '<a onclick="quizEdit(\'' + jsn + '\')">Update</a>' +
+                                    '<a style="padding-left:20px;position:releative" onclick="addQuestionDelete(\'' + jsn + '\')">Add Question</a>'+
+                                    '<a style="padding-left:20px;position:releative" onclick="quizDelete(\'' + jsn + '\')">Delete</a>';
                             },
                         }, 
                     ]
@@ -111,24 +138,30 @@
     function onSubmit(){
         var data = {
             "Title": $("[name='Title']").val(),
-            Quiz_Description: $("[name='Quiz_Description']").val(),
+            Description: $("[name='Quiz_Description']").val(),
             StartDate: $("[name='StartDate']").val(),
             EndDate: $("[name='EndDate']").val(),
             QuizType: $("[name='QuizType']").val()
+
         };
+        var endurl = "add";
+        var typ = "POST";
+        if (rowid != -1) {
+            data.Id = rowid;
+            endurl = "update";
+            typ = "PUT";
+        }
         console.log(data);
+        
         $.ajax({
-            type: "POST",
-            url: "ddd",
-            data: data,
+            type: typ,
+            url: baseurl + "api/Quiz/" + endurl,
+            data: JSON.stringify(data),
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             success: function (result) {
-                if (onSucccess === null || onSucccess === undefined) {
-
-                } else {
-                    onSucccess(result);
-                }
+                alert("Updated Succesffully");
+                $('#quizModal').modal('hide');
             },
             error: function (jqXHR, status, error) {
             },
@@ -136,44 +169,129 @@
             }
         });
     }
-    function AddQues(indx,ths) {
+    function OpenQuiz(indx, ths) {
         console.log(indx)
         console.log(dataSet)
         console.log(ths);
-        dataSet[indx].isActive = ths.checked;
+        rowid = -1;
+        $('#Title').val('');
+        $('#Quiz_Description').val('');
+        $('#StartDate').val('');
+        $('#EndDate').val('');
+        $('#QuizType').val('');
+        //dataSet[indx].isActive = ths.checked;
         //$(".editor-active")[0].checked = false
+        $('#quizModal').modal('show');
     }
-    function loadQuiz() {
-
+    function AddQues(indx, ths) {
+        dataSet[indx].isActive = ths.checked;
     }
-
-    function questEdit(jsn) {
-        //$("#Question").val('');
-        //$("#Score").val('');
-        //$("#Duration").val('');
-
+    rowid = -1;
+    function quizEdit(jsn) {
         jsn = unescape(jsn);
         var obj = JSON.parse(jsn);
         rowid = obj.Id;
-        //$("#Question").val(obj.Description);
-        //$("#Score").val(obj.Score);
-        //$("#Duration").val(obj.Duration);
-        //$(".optbox").remove();
-        //var tbl = document.getElementById("mdl");
-        //for (var i = 0; i < obj.QuestionOptions.length; i++) {
-        //    if (obj.QuestionOptions[i].IsAnswer) {
-        //        $(tbl).append('<div class="form-check optbox">' +
-        //            '<input type="checkbox" class="opt1" checked="checked" data="' + obj.QuestionOptions[i].Id + '"/> Is Correct answer<br/><textarea cols="20" class="form-control opt" id="Question" name="Question" value="' + obj.QuestionOptions[i].Option + '" rows="2">' + obj.QuestionOptions[i].Option + '</textarea>' +
-        //        '</div>');
-        //    }
-        //    else {
-        //        $(tbl).append('<div class="form-check optbox">' +
-        //            '<input type="checkbox" class="opt1"  data="' + obj.QuestionOptions[i].Id + '"/> Is Correct answer<br/><textarea cols="20" class="form-control opt" id="Question" name="Question"  value="' + obj.QuestionOptions[i].Option + '"  rows="2">' + obj.QuestionOptions[i].Option + '</textarea>' +
-        //        '</div>');
-        //    }
-        //}
+        $('#Title').val(obj.Title);
+        $('#Quiz_Description').val(obj.Quiz_Description);
+        $('#StartDate').val((obj.StartDate ? new Date(obj.StartDate).toISOString().split('T')[0] : ''));
+        $('#EndDate').val((obj.EndDate ? new Date(obj.EndDate).toISOString().split('T')[0] : ''));
+        $('#QuizType').val(obj.QuizType);
+        $('#quizModal').modal('show');
+    }
+    function addQuestionDelete(jsn){
+        jsn = unescape(jsn);
+        var obj = JSON.parse(jsn);
+        rowid = obj.Id;
+        $('#Title').val(obj.Title);
+        $('#Quiz_Description').val(obj.Quiz_Description);
+        $('#StartDate').val((obj.StartDate ? new Date(obj.StartDate).toISOString().split('T')[0] : ''));
+        $('#EndDate').val((obj.EndDate ? new Date(obj.EndDate).toISOString().split('T')[0] : ''));
+        $('#QuizType').val(obj.QuizType);
+        dataSet = [];
+        //try{  $('#examplequs').DataTable().destroy();}catch(e){}
+        $.ajax({
+            type: "GET",
+            url: baseurl + "api/Questions/get",
+            //data: { id: rowid },
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                dataSet = result;
+                console.log(result.Questions);
+                
+                $('#examplequs').DataTable({
+                    data: result,
 
-        $('#myModal').modal('show');
+                    columns: [
+                        {
+                            data: "Id", title: "Check",
+                            render: function (data, type, row, setting) {
+                                if (type === 'display') {
+                                    console.log(setting.row);
+                                    if (row.isActive) {
+                                        return '<input type="checkbox" checked="checked" onclick="AddQues(\'' + setting.row + '\',this)" class="editor-active">';
+                                    }
+                                    return '<input type="checkbox" onclick="AddQues(\'' + setting.row + '\',this)" class="editor-active">';
+                                }
+                                return data;
+                            },
+                            className: "dt-body-center"
+                        },
+                        //{ data: "Id", title: "Id", "visible": false },
+                        { data: "Description", title: "Question" },
+                        { data: "Duration", title: "Duration", width: "30px" },
+                        { data: "Score", title: "Score", width: "30px" },
+                    ]
+                });
+                
+                $('#quesModal').modal('show');
+            },
+            error: function (jqXHR, status, error) {
+                //if (onError !== null && onError !== undefined) {
+                //    onError(jqXHR, status, error);
+                //    $("#" + settings.updateTargetId).html(error);
+                //}
+            },
+            complete: function () {
+            }
+        });
+    }
+
+    function onSubmitQuest() {
+        var quest = dataSet.filter(function (a, i) { return a.isActive })
+        var data = {
+            Id:rowid,
+            "Title": $("[name='Title']").val(),
+            Description: $("[name='Quiz_Description']").val(),
+            StartDate: $("[name='StartDate']").val(),
+            EndDate: $("[name='EndDate']").val(),
+            QuizType: $("[name='QuizType']").val(),
+            Questions:quest
+        };
+        var endurl = "add";
+        var typ = "POST";
+        if (rowid != -1) {
+            data.Id = rowid;
+            endurl = "update";
+            typ = "PUT";
+        }
+        console.log(data);
+
+        $.ajax({
+            type: "POST",
+            url: baseurl + "/api/Quiz/linkquestions/" + rowid,
+            data: JSON.stringify(quest),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                alert("Updated Succesffully");
+                $('#quesModal').modal('hide');
+            },
+            error: function (jqXHR, status, error) {
+            },
+            complete: function () {
+            }
+        });
     }
     function questDelete(jsn) {
         jsn = unescape(jsn);
@@ -182,13 +300,13 @@
 
         $.ajax({
             type: "DELETE",
-            url: baseurl + "api/Questions/" + endurl,
+            url: baseurl + "api/Questions/delete",
             data: { id: rowid },
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             success: function (result) {
                 alert("Added Successfully");
-                $('#myModal').modal('show');
+                $('#quizModal').modal('show');
             },
             error: function (jqXHR, status, error) {
                 //if (onError !== null && onError !== undefined) {
