@@ -36,6 +36,7 @@
 </style>
 
 
+<input type="hidden" id="hdn-quiz-id" value="@ViewBag.QuizId" />
 
 <div id="quiz">
     <div>
@@ -58,7 +59,7 @@
 
         var baseurl = $("#baseurl").val();
         var quiz = {};
-        var quizId = 4;
+        var quizId = $('#hdn-quiz-id').val();
         var currentQuestionId = 0;
 
         $(document).ready(function () {

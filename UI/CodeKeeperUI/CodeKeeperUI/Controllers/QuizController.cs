@@ -12,8 +12,11 @@ namespace CodeKeeperUI.Controllers
     public class QuizController : Controller
     {
         // GET: Quiz
-        public ActionResult Index()
+        public ActionResult Index(string userId, int quizId)
         {
+
+            ViewBag.UserId = userId;
+            ViewBag.QuizId = quizId;
             return View();
         }
 
