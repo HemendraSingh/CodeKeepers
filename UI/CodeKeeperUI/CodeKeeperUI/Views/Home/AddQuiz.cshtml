@@ -8,105 +8,101 @@
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
 
-<div class="row">
-    <div class="col-lg-3">
-        <div class="panel panel-default">
-            <div class="panel-heading">Panel Heading</div>
-            <div class="panel-body">Panel Content</div>
-        </div>
-    </div>    
-</div>
+<div class="row " style="margin-top:25px;position:relative">
+    <button type="button" class="btn btn-primary" onclick="AddQues()">Add Question</button>
+    <button type="button" class="btn btn-primary" onclick="AddQues()">Add Quiz</button>
+    <table id="example" class="display" width="100%"></table>
+    <div id="quizModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
 
-@*<table cellpadding="0" cellspacing="0" id="tbl">
-    <tr>
-        <th colspan="2" align="center">Create Quiz</th>
-    </tr>
-    <tr>
-        <td>Title: </td>
-        <td>
-            @Html.EditorFor(a => a.Title);
-        </td>
-    </tr>
-    <tr>
-        <td>Quiz Description: </td>
-        <td>
-            @Html.EditorFor(a => a.Quiz_Description);
-        </td>
-    </tr>
-    <tr>
-        <td>Start Date: </td>
-        <td>
-            @Html.EditorFor(a => a.StartDate);
-        </td>
-    </tr>
-    <tr>
-        <td>End Date: </td>
-        <td>
-            @Html.EditorFor(a => a.EndDate);
-        </td>
-    </tr>
-    <tr>
-        <td>QuizType: </td>
-        <td>
-            @Html.EditorFor(a => a.QuizType);
-        </td>
-    </tr>
-    <tr>
-        <td></td>
-        <td><input type="submit" onclick="onSubmit()" value="Submit" /></td>
-    </tr>
-</table>*@
-<table id="example" class="display" width="100%"></table>
-<button onclick="AddQues()">Add Quest</button>
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Create/Update Question</h4>
+                </div>
+                <div class="modal-body" id="mdl">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Question</label>
+                        <textarea cols="20" class="form-control" id="Question" name="Question" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Score</label>
+                        <input data-val="true" class="form-control" data-val-number="The field Mark must be a number." data-val-required="The Mark field is required." id="Score" name="Score" type="number" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Duration</label>
+                        <input data-val="true" class="form-control" data-val-number="The field Mark must be a number." data-val-required="The Mark field is required." id="Duration" name="Duration" type="number" value="">
+                    </div>
+                    <div class="form-check">
+                        <a colspan="2" onclick="addOption()">Add Option: </a>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="onSubmit()">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 <script>
+    var baseurl = $("#baseurl").val();
     var dataSet = [];
     function showTable() {
-        dataSet = [{
-            label: "Active:",
-            name: "active",
-            type: "checkbox",
-            separator: "|",
-            options: [
-                { label: '', value: 1 }
-            ]
-        }, {
-            label: "First name:",
-            name: "first_name"
-        }, {
-            label: "Last name:",
-            name: "last_name"
-        }, {
-            label: "Phone:",
-            name: "phone"
-        }, {
-            label: "City:",
-            name: "city"
-        }, {
-            label: "Zip:",
-            name: "zip"
-        }
-        ];
-        $('#example').DataTable({
-            data: dataSet,
-            lengthMenu:[[1,2],[1,2]],
-            columns: [
-                {
-                    data: "label",title:"label",
-                    render: function (data, type, row,setting) {
-                        if (type === 'display') {
-                            console.log(setting.row);
-                            if (row.isActive) {
-                                return '<input type="checkbox" checked="checked" onclick=AddQues("' + setting.row + '",this) class="editor-active">';
-                            }
-                            return '<input type="checkbox" onclick=AddQues("' + setting.row + '",this) class="editor-active">';
-                        }
-                        return data;
-                    },
-                    className: "dt-body-center"
-                },
-                { data: "name", title: "label"}
-            ]
+        
+        $.ajax({
+            type: "GET",
+            url: baseurl + "api/Quiz/get",
+            data: {},
+            dataType: "json",
+            contentType: 'application/json',
+            success: function (result) {
+                console.log(result);
+                //dataSet
+                $('#example').DataTable({
+                    data: result,
+                    columns: [
+                        //{
+                        //    data: "Id", title: "Checked",
+                        //    render: function (data, type, row, setting) {
+                        //        if (type === 'display') {
+                        //            console.log(setting.row);
+                        //            if (row.isActive) {
+                        //                return '<input type="checkbox" checked="checked" onclick=AddQues("' + setting.row + '",this) class="editor-active">';
+                        //            }
+                        //            return '<input type="checkbox" onclick=AddQues("' + setting.row + '",this) class="editor-active">';
+                        //        }
+                        //        return data;
+                        //    },
+                        //    className: "dt-body-center"
+                        //},
+                        { data: "Title", title: "Title" },
+                        { data: "Description", title: "Description" },
+                        { data: "StartDate", title: "StartDate" },
+                        {
+                            title: "Action",
+                            render: function (data, type, row, setting) {
+                                var jsn = escape(JSON.stringify(row));
+                                return '<a onclick="quiztEdit(\'' + jsn + '\')">Update</a><a style="padding-left:20px;position:releative" onclick="quizDelete(\'' + jsn + '\')">Delete</a>';
+                            },
+                        }, 
+                    ]
+                });
+            },
+            error: function (jqXHR, status, error) {
+                //if (onError !== null && onError !== undefined) {
+                //    onError(jqXHR, status, error);
+                //    $("#" + settings.updateTargetId).html(error);
+                //}
+            },
+            complete: function () {
+            }
         });
+
+        
 
     }
     showTable();
@@ -149,5 +145,59 @@
     }
     function loadQuiz() {
 
+    }
+
+    function questEdit(jsn) {
+        //$("#Question").val('');
+        //$("#Score").val('');
+        //$("#Duration").val('');
+
+        jsn = unescape(jsn);
+        var obj = JSON.parse(jsn);
+        rowid = obj.Id;
+        //$("#Question").val(obj.Description);
+        //$("#Score").val(obj.Score);
+        //$("#Duration").val(obj.Duration);
+        //$(".optbox").remove();
+        //var tbl = document.getElementById("mdl");
+        //for (var i = 0; i < obj.QuestionOptions.length; i++) {
+        //    if (obj.QuestionOptions[i].IsAnswer) {
+        //        $(tbl).append('<div class="form-check optbox">' +
+        //            '<input type="checkbox" class="opt1" checked="checked" data="' + obj.QuestionOptions[i].Id + '"/> Is Correct answer<br/><textarea cols="20" class="form-control opt" id="Question" name="Question" value="' + obj.QuestionOptions[i].Option + '" rows="2">' + obj.QuestionOptions[i].Option + '</textarea>' +
+        //        '</div>');
+        //    }
+        //    else {
+        //        $(tbl).append('<div class="form-check optbox">' +
+        //            '<input type="checkbox" class="opt1"  data="' + obj.QuestionOptions[i].Id + '"/> Is Correct answer<br/><textarea cols="20" class="form-control opt" id="Question" name="Question"  value="' + obj.QuestionOptions[i].Option + '"  rows="2">' + obj.QuestionOptions[i].Option + '</textarea>' +
+        //        '</div>');
+        //    }
+        //}
+
+        $('#myModal').modal('show');
+    }
+    function questDelete(jsn) {
+        jsn = unescape(jsn);
+        var obj = JSON.parse(jsn);
+        console.log(rowid);
+
+        $.ajax({
+            type: "DELETE",
+            url: baseurl + "api/Questions/" + endurl,
+            data: { id: rowid },
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                alert("Added Successfully");
+                $('#myModal').modal('show');
+            },
+            error: function (jqXHR, status, error) {
+                //if (onError !== null && onError !== undefined) {
+                //    onError(jqXHR, status, error);
+                //    $("#" + settings.updateTargetId).html(error);
+                //}
+            },
+            complete: function () {
+            }
+        });
     }
 </script>
