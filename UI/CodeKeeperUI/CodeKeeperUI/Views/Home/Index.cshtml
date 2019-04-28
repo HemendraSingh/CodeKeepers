@@ -4,6 +4,14 @@
     ViewBag.Title = "Home Page";
 }
 
+<style type="text/css">
+    .shadow {
+        -webkit-box-shadow: 3px 3px 5px 6px #ccc; /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+        -moz-box-shadow: 3px 3px 5px 6px #ccc; /* Firefox 3.5 - 3.6 */
+        box-shadow: 3px 3px 5px 6px #ccc; /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
+    }
+</style>
+
 <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
 
 <div class="jumbotron">
@@ -23,11 +31,31 @@
             dataType: 'json', // added data type
             success: function (res) {
                 for (quiz in res) {
+                    var quizid = res[quiz].Id;
                     var title = res[quiz].Title;
                     var description = res[quiz].Description;
                     var startDate = res[quiz].StartDate;
-                    $("#QuizzesDiv").append("<div class=\"col-md-3 col-sm-3 col-xs-3\" style=\"border: 1px dashed gray;margin:10px;\"><b>Quiz Name</b>:" + title + "<br/><b>Description</b>:" + description + "<br><b>Start Date:</b>" + startDate + "<br/><a href =\"#\">Register<a>" + "</b></div>");
+                    $("#QuizzesDiv").append("<div class=\"col-md-3 col-sm-3 col-xs-3\" style=\"border: 1px dashed gray;margin:10px;-webkit-box-shadow: 3px 3px 5px 6px #ccc;-moz-box-shadow: 3px 3px 5px 6px #ccc;box-shadow: 3px 3px 5px 6px #ccc;\"><b>Quiz Name</b>:" + title + "<br/><b>Description</b>:" + description + "<br><b>Start Date:</b>" + startDate + "<br/><a href =javascript:OpenRegisterationDialog(\"" + quizid + "\");>Register<a>" + "</b></div>");
                 }
+            }
+        });
+    }
+
+    function OpenRegisterationDialog(quizid) {
+        var userid = '@User.Identity.GetUserId()';
+        if (userid == "") {
+            alert("Please login to register for this quiz.");
+            return;
+        }
+        $.ajax({
+            url: "https://multiplayerquizapi20190428125331.azurewebsites.net/api/Userquiz/registerquiz/" + userid + "/" + quizid,
+            type: 'POST',
+            dataType: 'json', // added data type
+            success: function (res) {
+                alert("Registered successfully.");     
+            },
+            error: function (jqXHR, exception) {
+                alert("You are already registered for the quiz.");
             }
         });
     }
