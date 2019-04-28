@@ -23,11 +23,27 @@
             dataType: 'json', // added data type
             success: function (res) {
                 for (quiz in res) {
+                    var quizid = res[quiz].Id;
                     var title = res[quiz].Title;
                     var description = res[quiz].Description;
                     var startDate = res[quiz].StartDate;
-                    $("#QuizzesDiv").append("<div class=\"col-md-3 col-sm-3 col-xs-3\" style=\"border: 1px dashed gray;margin:10px;\"><b>Quiz Name</b>:" + title + "<br/><b>Description</b>:" + description + "<br><b>Start Date:</b>" + startDate + "<br/><a href =\"#\">Register<a>" + "</b></div>");
+                    $("#QuizzesDiv").append("<div class=\"col-md-3 col-sm-3 col-xs-3\" style=\"border: 1px dashed gray;margin:10px;\"><b>Quiz Name</b>:" + title + "<br/><b>Description</b>:" + description + "<br><b>Start Date:</b>" + startDate + "<br/><a href =javascript:OpenRegisterationDialog(\"" + quizid + "\");>Register<a>" + "</b></div>");
                 }
+            }
+        });
+    }
+
+    function OpenRegisterationDialog(quizid) {
+        var userid = '@User.Identity.GetUserId()';
+        $.ajax({
+            url: "https://multiplayerquizapi20190428125331.azurewebsites.net/api/Userquiz/registerquiz/" + userid + "/" + quizid,
+            type: 'POST',
+            dataType: 'json', // added data type
+            success: function (res) {
+                alert("Registered successfully.");     
+            },
+            error: function (jqXHR, exception) {
+                alert("You are already registered for the quiz.");
             }
         });
     }
