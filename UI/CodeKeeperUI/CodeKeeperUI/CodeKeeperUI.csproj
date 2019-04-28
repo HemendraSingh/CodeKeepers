@@ -273,6 +273,7 @@
     <Content Include="Views\Home\AddQuiz.cshtml" />
     <Content Include="Views\Home\UserDashboard.cshtml" />
     <Content Include="Views\Home\QuizView.cshtml" />
+    <Content Include="Views\Home\AdminLanding.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
