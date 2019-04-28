@@ -35,7 +35,27 @@
                     var title = res[quiz].Title;
                     var description = res[quiz].Description;
                     var startDate = res[quiz].StartDate;
-                    $("#QuizzesDiv").append("<div class=\"col-md-3 col-sm-3 col-xs-3\" style=\"border: 1px dashed gray;margin:10px;-webkit-box-shadow: 3px 3px 5px 6px #ccc;-moz-box-shadow: 3px 3px 5px 6px #ccc;box-shadow: 3px 3px 5px 6px #ccc;\"><b>Quiz Name</b>:" + title + "<br/><b>Description</b>:" + description + "<br><b>Start Date:</b>" + startDate + "<br/><a href =javascript:OpenRegisterationDialog(\"" + quizid + "\");>Register<a>" + "</b></div>");
+                    var startQuizLink = "";
+                    startQuizLink = "<span id=\"" + "Start_" + quizid + "\"></span>";
+                    IsUserRegisteredForQuiz(quizid);
+                    $("#QuizzesDiv").append("<div class=\"col-md-3 col-sm-3 col-xs-3\" style=\"border: 1px dashed gray;margin:10px;-webkit-box-shadow: 3px 3px 5px 6px #ccc;-moz-box-shadow: 3px 3px 5px 6px #ccc;box-shadow: 3px 3px 5px 6px #ccc;\"><b>Quiz Name</b>:" + title + "<br/><b>Description</b>:" + description + "<br><b>Start Date:</b>" + startDate + "<br/><a id=\"Register_" + quizid + "\" href =javascript:OpenRegisterationDialog(\"" + quizid + "\");>Register<a>" + startQuizLink + "</div>");
+                }
+            }
+        });
+    }
+
+    function IsUserRegisteredForQuiz(quizid) {
+        var userid = '@User.Identity.GetUserId()';
+        $.ajax({
+            url: "https://multiplayerquizapi20190428125331.azurewebsites.net/api/Userquiz/getuserquizzes/" + userid,
+            type: 'GET',
+            dataType: 'json', // added data type
+            success: function (res) {
+                for (quiz in res) {
+                    if (quizid == res[quiz].Id) {
+                        $("#Start_" + quizid).html("<a href=\"#\">Start</a>");
+                        $("#Register_" + quizid).toggle();
+                    }
                 }
             }
         });
@@ -47,6 +67,7 @@
             alert("Please login to register for this quiz.");
             return;
         }
+
         $.ajax({
             url: "https://multiplayerquizapi20190428125331.azurewebsites.net/api/Userquiz/registerquiz/" + userid + "/" + quizid,
             type: 'POST',
