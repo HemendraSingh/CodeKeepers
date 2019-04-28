@@ -35,6 +35,10 @@
 
     function OpenRegisterationDialog(quizid) {
         var userid = '@User.Identity.GetUserId()';
+        if (userid == "") {
+            alert("Please login to register for this quiz.");
+            return;
+        }
         $.ajax({
             url: "https://multiplayerquizapi20190428125331.azurewebsites.net/api/Userquiz/registerquiz/" + userid + "/" + quizid,
             type: 'POST',
