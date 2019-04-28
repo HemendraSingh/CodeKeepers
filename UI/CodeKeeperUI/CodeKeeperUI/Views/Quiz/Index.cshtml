@@ -1,0 +1,192 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<style type="text/css">
+    #quiz-timer {
+        border: 1px solid black;
+        border-radius: 50px;
+        font-size: 18px;
+        margin: 10px;
+        width: 50px;
+        height: 50px
+    }
+
+    #quiz {
+        margin-top: 100px;
+    }
+
+    #question-text {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .form-check {
+        margin-top: 10px;
+    }
+
+    .correct-answer {
+        color: green !important;
+    }
+
+    .displayNone {
+        display: none !important;
+    }
+</style>
+
+
+
+<div id="quiz">
+    <div>
+        <h6 style="float:right;font-size: 18px;" id="question-number"></h6>
+        <h4 id="quiz-title" style="font-weight:bold"></h4>
+        <h6 id="quiz-description"></h6>
+        <hr />
+    </div>
+    <div>
+        <span id="quiz-timer" class="badge badge-pill badge-primary" style="float:right;display: inline-block; height: 18px;font-size: 14px;">10</span>
+    </div>
+
+    <div id="question">
+    </div>
+</div>
+
+
+@section scripts {
+    <script type="text/javascript">
+
+        var baseurl = $("#baseurl").val();
+        var quiz = {};
+        var quizId = 4;
+        var currentQuestionId = 0;
+
+        $(document).ready(function () {
+            $.ajax({
+                type: "get",
+                url: baseurl + "api/Quiz/get/" + quizId,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    quiz = result;
+                    displayQuiz();
+                    displayQuestion();
+                },
+                error: function (jqXHR, status, error) {
+                },
+                complete: function () {
+                }
+            });
+        });
+
+        function displayQuiz() {
+            $('#quiz-title').text(quiz.Title);
+            $('#quiz-description').text(quiz.Description);
+        }
+
+        function StartTimer() {
+            var myInterval = window.setInterval(() => {
+                var timerCount = +$('#quiz-timer').text();
+                timerCount--;
+                $('#quiz-timer').text(timerCount);
+
+                if (timerCount == 0) {
+                    window.clearInterval(myInterval);
+                    $('#quiz-timer').text(0);
+                    submitTheAnswer();
+                    DisplayCorrectAnswer();
+                    currentQuestionId++;
+                }
+            }, 1000)
+        }
+
+        function submitTheAnswer() {
+            var questionId = quiz.Questions[currentQuestionId].Id;
+            var userQuestionId = 1;
+
+            var answer = '';
+            $('.form-check-input').each(function () {
+                if ($(this).is(":checked")) {
+                    answer += $(this).attr('value') + ","
+                }
+            });
+
+            if (answer.length > 0) {
+               answer = answer.slice(0, -1);
+            }
+            debugger;
+
+            var data = {
+                UserQuestionId: userQuestionId,
+                QuestionId: questionId,
+                Answer: answer
+            }
+
+            $.post('/Quiz/SubmitAnswer', data, function (res) {
+
+            })
+        }
+
+        function DisplayCorrectAnswer() {
+            var currentQuestion = quiz.Questions[currentQuestionId];
+
+            $('.form-check-input').each(function () {
+                $(this).attr('disabled', true);
+
+                var value = +$(this).val();
+
+                for (var i = 0; i < currentQuestion.QuestionOptions.length; i++) {
+                    if (currentQuestion.QuestionOptions[i].Id == value) {
+                        if (currentQuestion.QuestionOptions[i].IsAnswer == true) {
+                            $(this).next('.form-check-label').addClass('correct-answer');
+                        }
+                    }
+                }
+            });
+
+            window.setTimeout(() => {
+                displayQuestion();
+            }, 2000);
+        }
+
+        function displayQuestion() {
+            $('#question').html('');
+
+            if (currentQuestionId < quiz.Questions.length) {
+                $('#question-number').html('Question ' + (currentQuestionId + 1) + ' of ' + quiz.Questions.length);
+            }
+
+            var currentQuestion = quiz.Questions[currentQuestionId];
+
+            if (!currentQuestion) {
+                submitTheTest();
+                return;
+            }
+
+            var questionText = currentQuestion.Description;
+
+            $('#question').append('<div id="question-text"><span>' + questionText + '</span ></div>');
+
+            var html = '<div id="question-option">';
+            $('#question').append('<div id="question-option">');
+
+            for (var i = 0; i < currentQuestion.QuestionOptions.length; i++) {
+                html += '<div class="form-check"><input class= "form-check-input" type = "checkbox" value = "' + currentQuestion.QuestionOptions[i].Id + '" id = "chk-' + currentQuestion.QuestionOptions[i].Id + '" >';
+                html += '<label class="form-check-label" for="chk-' + currentQuestion.QuestionOptions[i].Id + '">' + currentQuestion.QuestionOptions[i].Option + '</label>';
+                html += '</div>';
+            }
+                html += '</div>'
+            $('#question').append(html);
+            $('#quiz-timer').text(!currentQuestion.Duration ? 10 : currentQuestion.Duration);
+            StartTimer();
+        }
+        
+        function submitTheTest() {
+            $('#quiz-timer').addClass('displayNone');
+            $('#question').html('Your test has been submitted, we are analyzing the results');
+            $('#question').append('<a href="' + baseurl + '" > Take another Quize </a>');
+        }
+
+    </script>
+}
+
