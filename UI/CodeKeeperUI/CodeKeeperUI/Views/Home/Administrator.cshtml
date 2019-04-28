@@ -8,49 +8,6 @@
 <div class="row " style="margin-top:25px;position:relative">
     <button type="button" class="btn btn-primary" onclick="addQuest_1()">Add Question</button>
 
-    @*<table cellpadding="0" cellspacing="0" id="tbl">
-            <tr>
-                <th colspan="2" align="center">Create Question</th>
-            </tr>
-            <tr>
-                <td>Question: </td>
-                <td>
-                    <textarea cols="20" id="Question" name="Question" rows="2"></textarea>
-                </td>
-            </tr>
-            <tr>
-                <td>Score: </td>
-                <td>
-                    <input data-val="true" data-val-number="The field Mark must be a number." data-val-required="The Mark field is required." id="Mark" name="Mark" type="number" value="">
-                </td>
-            </tr>
-            <tr>
-                <td>Negative Score: </td>
-                <td>
-                    <input data-val="true" data-val-number="The field NegativeMark must be a number." data-val-required="The NegativeMark field is required." id="NegativeMark" name="NegativeMark" type="number" value="">
-                </td>
-            </tr>
-            <tr>
-                <td>Question Type: </td>
-                <td>
-                    <select name="QuestionType" id="QuestionType">
-                        <option>Please Select</option>
-                        <option value="Single">Single</option>
-                        <option  value="Single">Multi</option>
-                        <option  value="Single">Text</option>
-                    </select>
-
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" onclick="addOption()">Add Option: </td>
-            </tr>
-
-            <tr>
-                <td></td>
-                <td><input type="submit" onclick="onSubmit()" value="Submit" /></td>
-            </tr>
-        </table>*@
     <table id="example" class="display" width="100%"></table>
     <div id="myModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -110,13 +67,22 @@
         var lst1 = $(".opt1");
         var list = [];
         for (var i = 0; i < lst.length; i++) {
-            list.push({ Option: lst[i].value, IsAnswer: lst1[i].checked });
+            var id = lst1[i].getAttribute("data");
+            if (id) {
+                list.push({Id:id, Option: lst[i].value, IsAnswer: lst1[i].checked });
+            }
+            else {
+                list.push({ Option: lst[i].value, IsAnswer: lst1[i].checked });
+            }
+            if (rowid != -1) {
+                list[i].QuestionId = rowid;
+            }
         }
         var data = {
             "Description": $("[name='Question']").val(),
             Score: $("[name='Score']").val(),
             Duration: $("[name='Duration']").val(),
-            Question_Option: list
+            QuestionOptions: list
         };
         var endurl = "add";
         var typ = "POST";
@@ -221,12 +187,12 @@
         for (var i = 0; i < obj.QuestionOptions.length; i++) {
             if (obj.QuestionOptions[i].IsAnswer) {
                 $(tbl).append('<div class="form-check optbox">' +
-                    '<input type="checkbox" class="opt1" checked="checked" /> Is Correct answer<br/><textarea cols="20" class="form-control opt" id="Question" name="Question" value="' + obj.QuestionOptions[i].Option + '" rows="2">' + obj.QuestionOptions[i].Option + '</textarea>' +
+                    '<input type="checkbox" class="opt1" checked="checked" data="' + obj.QuestionOptions[i].Id + '"/> Is Correct answer<br/><textarea cols="20" class="form-control opt" id="Question" name="Question" value="' + obj.QuestionOptions[i].Option + '" rows="2">' + obj.QuestionOptions[i].Option + '</textarea>' +
                 '</div>');
             }
             else {
                 $(tbl).append('<div class="form-check optbox">' +
-                    '<input type="checkbox" class="opt1" /> Is Correct answer<br/><textarea cols="20" class="form-control opt" id="Question" name="Question"  value="' + obj.QuestionOptions[i].Option + '"  rows="2">' + obj.QuestionOptions[i].Option + '</textarea>' +
+                    '<input type="checkbox" class="opt1"  data="' + obj.QuestionOptions[i].Id + '"/> Is Correct answer<br/><textarea cols="20" class="form-control opt" id="Question" name="Question"  value="' + obj.QuestionOptions[i].Option + '"  rows="2">' + obj.QuestionOptions[i].Option + '</textarea>' +
                 '</div>');
             }            
         }
