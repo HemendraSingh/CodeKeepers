@@ -53,7 +53,7 @@
             success: function (res) {
                 for (quiz in res) {
                     if (quizid == res[quiz].Id) {
-                        $("#Start_" + quizid).html("<a href=\"#\">Start</a>");
+                        $("#Start_" + quizid).html("<a href=\"/quiz/index/" + userid + "?quizId=" + quizid + "\">Start</a>");
                         $("#Register_" + quizid).toggle();
                     }
                 }
